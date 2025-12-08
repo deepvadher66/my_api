@@ -6,6 +6,9 @@ import json
 
 app = Flask(__name__)
 
+# -----------------------------
+# Database Connection
+# -----------------------------
 def get_db_connection():
     return mysql.connector.connect(
         host="13.204.140.150",
@@ -28,10 +31,10 @@ def download_today_json():
     cursor.close()
     conn.close()
 
-    # Convert rows (list of dicts) to JSON
-    json_data = json.dumps(rows, indent=4)
+    # Convert rows to JSON and handle datetime objects
+    json_data = json.dumps(rows, indent=4, default=str)
 
-    # Return as downloadable file
+    # Return file download response
     return Response(
         json_data,
         mimetype="application/json",
@@ -45,11 +48,11 @@ def download_today_json():
 def home():
     return jsonify({
         "message": "API running",
-        "download": "/download_today_json"
+        "download_file": "/download_today_json"
     })
 
 # -----------------------------
-# Render Entry
+# Render Entry Point
 # -----------------------------
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
