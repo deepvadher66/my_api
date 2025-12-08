@@ -1,7 +1,8 @@
-from flask import Flask, jsonify
+from flask import Flask, Response, jsonify
 import mysql.connector
 import pandas as pd
 import os
+import json
 
 app = Flask(__name__)
 
@@ -13,8 +14,11 @@ def get_db_connection():
         database="mnm"
     )
 
-@app.route("/get_today_json", methods=["GET"])
-def get_today_json():
+# -----------------------------
+# JSON Auto-download Endpoint
+# -----------------------------
+@app.route("/download_today_json", methods=["GET"])
+def download_today_json():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
@@ -24,13 +28,29 @@ def get_today_json():
     cursor.close()
     conn.close()
 
-    # If no data today, return empty list
-    return jsonify(rows)
+    # Convert rows (list of dicts) to JSON
+    json_data = json.dumps(rows, indent=4)
 
+    # Return as downloadable file
+    return Response(
+        json_data,
+        mimetype="application/json",
+        headers={"Content-Disposition": "attachment;filename=today_data.json"}
+    )
+
+# -----------------------------
+# Home Route
+# -----------------------------
 @app.route("/")
 def home():
-    return jsonify({"message": "API running. Use /get_today_json"})
+    return jsonify({
+        "message": "API running",
+        "download": "/download_today_json"
+    })
 
+# -----------------------------
+# Render Entry
+# -----------------------------
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
