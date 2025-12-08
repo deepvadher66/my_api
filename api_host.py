@@ -1,4 +1,4 @@
-from flask import Flask, Response
+from flask import Flask, jsonify
 import mysql.connector
 import pandas as pd
 import os
@@ -13,8 +13,8 @@ def get_db_connection():
         database="mnm"
     )
 
-@app.route("/download_today", methods=["GET"])
-def download_today():
+@app.route("/get_today_json", methods=["GET"])
+def get_today_json():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
@@ -24,16 +24,12 @@ def download_today():
     cursor.close()
     conn.close()
 
-    df = pd.DataFrame(rows)
+    # If no data today, return empty list
+    return jsonify(rows)
 
-    # Convert to CSV
-    csv_data = df.to_csv(index=False)
-
-    return Response(
-        csv_data,
-        mimetype="text/csv",
-        headers={"Content-Disposition": "attachment;filename=today_data.csv"}
-    )
+@app.route("/")
+def home():
+    return jsonify({"message": "API running. Use /get_today_json"})
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
