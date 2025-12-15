@@ -27,7 +27,6 @@ def download_blinkit():
     cursor.execute("""
         SELECT * 
         FROM tb_blinkit_category_data 
-        WHERE DATE(created_on) = CURDATE()
     """)
     rows = cursor.fetchall()
 
@@ -51,7 +50,6 @@ def download_zepto():
     cursor.execute("""
         SELECT * 
         FROM tb_zepto_category_data 
-        WHERE DATE(created_on) = CURDATE()
     """)
     rows = cursor.fetchall()
 
@@ -75,7 +73,6 @@ def download_instamart():
     cursor.execute("""
         SELECT * 
         FROM tb_instamart_category_data 
-        WHERE DATE(created_on) = CURDATE()
     """)
     rows = cursor.fetchall()
 
@@ -108,3 +105,4 @@ def home():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
